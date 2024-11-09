@@ -1,0 +1,32 @@
+.even{
+    background-color: white;
+}
+.odd{
+    background-color: rgba(1, 17, 41, 0.8);
+}
+.oddTitle{
+    color: white;
+}
+.evenTitle{
+    color: black;
+}
+
+.cat_title{
+    font-weight: bold;
+}
+
+.aiv_emore_lnk{
+    background-color: #f9a422;
+}
+
+.aiv_emore_lnk :hover{
+    background-color: #d08007;
+}
+img{
+    object-fit: contain;
+    width: 237px;
+    height: 237px;
+    border-radius: 3px;
+    /* max-width: 100%; */
+    /* height: 100%; */
+}

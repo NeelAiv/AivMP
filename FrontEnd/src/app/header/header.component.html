@@ -1,0 +1,120 @@
+<!-- Header code starts here  -->
+<header ng-controller="HeaderController">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-lg-4 col-xl-4">
+                <div class="logo_wrap">
+                    <div class="logo">
+                        <a href="#!home"><img src="assets/logo.png" alt="Logo"></a>
+                    </div>
+
+                    <div class="resp_div d-sm-block d-md-none d-lg-none d-xl-none">
+                        <button class="navbar-toggler menuresp_btn" type="button" data-toggle="collapse"
+                            aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8 col-lg-8 col-xl-8">
+                <nav class="navbar navbar-expand-md menubar">
+                    <div class="collapse navbar-collapse" id="respheader_menu">
+                        <ul class="navbar-nav ml-auto menulinks">
+                            <li class="nav-item active">
+                                <a class="nav-link" routerLink="/home">Home</a>
+                            </li>
+                            <!-- <li class="nav-item">
+                                <a class="nav-link" routerLink="/about">About</a>
+                            </li> -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#!widgets" id="dropdownWidget"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Categories</a>
+                                <ul class="dropdown-menu dpmenu point" aria-labelledby="dropdown04">
+                                    <li *ngFor="let category of compCategories | keyvalue" [ngClass]="category.value.subCategories.length > 0  ? 'dropdown-submenu' : '' "  >
+                                            <!-- [routerLink]="['/widget/','table']" -->
+                                        <a class="dropdown-item" (click)="category.value.subCategories.length <= 0 ? openComponent(category.value.name) : return;" >{{ category.value.name }}</a>
+                                            <ul class="dropdown-menu">
+                                                <li *ngFor="let subCategory of category.value.subCategories | keyvalue">
+                                                    <a class="dropdown-item"
+                                                    (click)="openComponentWithSub(category.value.name,subCategory.value.name)" >{{ subCategory.value.name }}</a></li>
+                                            </ul>
+                                            <!-- <div [ngClass]="category.value.subCategories !=[] ? 'dropdown-submenu' : 'dropdown-item' " aria-labelledby="dropdown04">
+                                                <a class="dropdown-item"
+                                                    *ngFor="let subCategory of category.value.subCategories | keyvalue"
+                                                    [routerLink]="['/widget/','table']">{{ subCategory.value.name }}</a>
+                                            </div> -->
+                                        
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <ul *ngIf="(user$ | async) as user" class="navbar-nav loginoper_lnks">
+                            <li class="nav-item" hidden>
+                                <a class="nav-link headcart_lnk" href="#!cart">Cart <i
+                                        class="fa fa-shopping-cart"></i><span class="badge badge-light">0</span></a>
+                            </li>
+                            <!-- isLogin -->
+                            <!-- *ngIf="!(user$ | async) as user" -->
+                            <!-- *ngIf="(previous_info | json) != '{}'" -->
+                            <!-- *ngIf="user == {}" -->
+                            <li class="nav-item" *ngIf="(user | json) == '{}'" >
+                                <a class="nav-link headsgn_lnk" href="javascript:void(0);" data-toggle="modal"
+                                    data-target="#aivsigin_modal" data-backdrop="static" (click)="openModal()"
+                                    data-keyboard="false">Sign
+                                    In</a>
+                            </li>
+                            
+                            <!-- *ngIf="user !={}"  -->
+                            <li  class="nav-item dropdown" *ngIf="(user | json) != '{}'">
+                                <a class="nav-link dropdown-toggle headlgn_lnk" href="javascript:void(0);"
+                                    id="dropdown04" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false"> {{user.first_name}} </a>
+                                <div class="dropdown-menu dpmenu" aria-labelledby="dropdown04">
+                                    <a class="dropdown-item" routerLink="/my-profile">My Profile</a>
+                                    <!-- *ngIf="object[0].role == 'ADMIN'" -->
+                                    <a class="dropdown-item" *ngIf="user.role == 'ADMIN'" routerLink="/upload">Upload
+                                        Widget</a>
+                                    <a class="dropdown-item" (click)="logout();">Logout</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- Header code ends here  -->
+
+<!-- 
+<div class=" nav-aiv">
+    <div class="container">
+        <nav class="navbar navbar-expand-md ml-au ">
+            <a href="#" class="navbar-brand">
+                <img src="assets/logo.png" height="28" alt="CoolBrand">
+            </a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        
+            <div class="collapse navbar-collapse  " id="navbarCollapse">
+                <div class="navbar-nav ml-auto">
+                    <a href="#" class="nav-item nav-link">Home</a>
+                    <a href="#" class="nav-item nav-link">About</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Widgets
+                      </a>
+                      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                      </div>
+                    <a href="#" class=" btn btn-danger nav-item nav-link">Sign in </a>
+                </div>
+                
+            </div>
+        </nav>
+    </div>  
+</div> -->

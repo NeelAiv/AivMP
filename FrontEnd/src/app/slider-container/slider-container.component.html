@@ -1,0 +1,103 @@
+    <div>
+
+    <!-- class="{{ index%2 ===0 ? 'odd' : 'even' }}"   -->
+    <ng-container  *ngFor="let sliderCategory of sliderCategories;let index= index;" >
+        <!-- padding-bottom: 50px; -->
+        <div style="padding-top: 50px;padding-bottom: 50px;" [ngClass]="index%2 == 0 ? 'odd' : 'even'"  >
+            <div class="container">
+                <div class="aiv_smn_title_typ2">
+                    <div [ngClass]="index%2 == 0 ? 'oddTitle' : 'evenTitle'" class="aiv_smn_title_inner">
+                        <div class="store_heading" >
+                            <h1>{{ sliderCategory.subCategory == '' ? sliderCategory.category : sliderCategory.subCategory }}</h1>
+                        </div>
+                        <p>Try our {{ sliderCategory.subCategory == '' ? sliderCategory.category : sliderCategory.subCategory }}  components for your dashboard from our
+                            marketlplace.</p>
+                    </div>
+                    <button class="aiv_emore_lnk btn btn-aiv btn explore"
+                        [routerLink]="['/component/',sliderCategory.category,sliderCategory.subCategory]">Explore More</button>
+                </div>
+
+                <div class="mt-50 mb-50">
+                    <div class="owl-carousel owl-theme">
+                        <!-- *ngFor="let obj of objectList" -->
+                        <ng-container *ngFor="let obj of (widgetList$ | async) | matchesCategorySubCategory : sliderCategory.category : sliderCategory.subCategory" >
+                            <div class="item">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="item">
+                                            <div class="aiv_widgetsdock_item">
+                                                <div class="aiv_widgetitem_title_catg cat_title">
+                                                    {{obj.sub_category == '' ? obj.category : obj.sub_category }}
+                                                </div>
+                                                <div class="aiv_widget_image">
+                                                    <div class="aiv_widget_amntdiv">
+                                                        <span
+                                                            class="badge aiv_badge_price aiv_badge_free">{{ obj.purchase_option }}</span>
+                                                    </div>
+                                                    <!-- <img src="{{n.image}}" alt="aiv-widget-image"> -->
+                                                    <!-- baseUrl+'/uploads/images/'+ -->
+                                                    <img src="{{obj.image !== '' ? baseUrl+'/uploads/images/'+obj.image : sliderCategory.subCategory == '' ? baseUrl+'/uploads/images/'+sliderCategory.category+'.png' : baseUrl+'/uploads/images/'+sliderCategory.subCategory+'.png' }}"
+                                                        alt="aiv-widget-image">
+                                                </div>
+                                                <div class="aiv_widgetsdock_item_desc">
+                                                    <p class="wid_nm">{{obj.title}}</p>
+                                                    <div class="widg_rating_div">
+                                                        <div class="widg_rating_div_rstars">
+                                                            <app-star-rating disable="true" [selected]="obj.rate"> </app-star-rating>
+                                                        </div>
+                                                        <!-- <div class="widg_ratg_cnts">
+                                                            {{obj.rate}}/5
+                                                        </div> -->
+                                                    </div>
+                                                    <div class="aiv_wid_item_dtl_list">
+                                                        <ul class="list-unstyled awid_dlist">
+                                                            <li>
+                                                                <i class="fa fa-database"></i> {{obj.size}}kb
+                                                            </li>
+                                                            <li>
+                                                                <i class="fa fa-download"></i> {{obj.downloaded}}
+                                                            </li>
+                                                            <li>
+                                                                <i class="fa fa-refresh"></i> {{ obj.refresh }}
+                                                            </li>
+                                                            <li>
+                                                                <i class="fa fa-comment-o"></i> {{ obj.no_of_comments }}
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <!-- <div class="aiv_wid_item_sml_desc">
+                                                        <p>{{obj.description}}</p>
+                                                    </div> -->
+                                                    <div *ngIf="(user$ | async) as user" class="aiv_widgetsdock_btn_div">
+                                                        <a class="btn btn-default aivlnk_prv"
+                                                            [routerLink]="['/preview/',obj.id]"><i
+                                                                class="fa fa-eye"></i>Preview</a>
+                                                        <a  class="btn btn-default aivlnk_down" href="javascript:void(0);" (click)="openDownloadModal(obj.file_path)"  data-toggle="modal"
+                                                        data-target="#aivsub_modal" data-backdrop="static" data-keyboard="false" >
+                                                            <i class="fa fa-download"></i>Download</a>
+
+                                                            <!-- href="{{baseUrl+'/uploads/files/'+obj.file_path}}" -->
+                                                        <!-- <a  *ngIf="(user | json) == '{}'"
+                                                            class="btn btn-default aivlnk_down"
+                                                            href="{{baseUrl+'/uploads/files/'+obj.file_path}}"
+                                                            download><i class="fa fa-download"></i>Download</a>
+                                                        <a *ngIf="(user | json) != '{}'"
+                                                            class="btn btn-default aivlnk_down"
+                                                            href="{{baseUrl+'/uploads/files/'+obj.file_path}}"
+                                                            download><i class="fa fa-download"></i>Download11</a> -->
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </ng-container>
+</div>
