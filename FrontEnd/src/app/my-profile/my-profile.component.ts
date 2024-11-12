@@ -47,7 +47,7 @@ export class MyProfileComponent implements OnInit,OnDestroy {
     private sharVarService : SharedVarService,
     private tostr :ToastrService) {}
   ngOnDestroy(): void {
-  
+
   }
 
   ngOnInit(): void {
@@ -73,20 +73,20 @@ export class MyProfileComponent implements OnInit,OnDestroy {
       if(data.success == true ){
         this.userService.GetById(this.userToUpdate.id).subscribe( datatoupdate =>{
           this.sharVarService.setUserObjectValue(datatoupdate[0]);
-        })  
+        })
         this.setUser();
-        this.tostr.success(data.message,'Success');  
+        this.tostr.success(data.message,'Success');
       }
         else{
           this.tostr.error(data.message,'Error');
           console.log("Error while editing user");
-        }    
+        }
     });
     // this.userService.updateUser(this.userToUpdate).subscribe(data => {
     //   console.log(data);
     // });
   }
-  
+
   getWidgetOfUser(){
     this.widgetService.GetWidgetByUserId(this.currentUser.id).subscribe(data =>{
       this.widgetsByUser=data;
@@ -98,7 +98,7 @@ export class MyProfileComponent implements OnInit,OnDestroy {
       if(data.success == true){
         this.tostr.success('Component deleted Successfully','Success');
         this.router.navigate(['/my-profile']);
-        this.getWidgetOfUser(); 
+        this.getWidgetOfUser();
       }
       else{
         this.tostr.error('Delete failed','Error');

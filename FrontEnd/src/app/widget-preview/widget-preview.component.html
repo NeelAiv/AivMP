@@ -96,12 +96,12 @@
                                                 <div class="aivrate_prgbox_prgdiv">
                                                     <div class="progress">
                                                         <!-- [ngStyle]="'width': {{ratingObject.five*100/ratingObject.total}}+ '%' ;" -->
-                                                        <!-- style = " 'width:'  ratingObject.five*100/ratingObject.total+'%'"; --> 
+                                                        <!-- style = " 'width:'  ratingObject.five*100/ratingObject.total+'%'"; -->
                                                         <!-- attr.aria-valuenow="{{ratingObject.five*100/ratingObject.total}}" -->
                                                         <!-- ratingObject.ratingFive -->
-                                                        <progressbar [value]="ratingObject.ratingFive"></progressbar>   
+                                                        <progressbar [value]="ratingObject.ratingFive"></progressbar>
                                                         <!-- <div class="progress-bar aiv_prgbar5" role="progressbar"
-                                                    
+
                                                               aria-valuemin="0"
                                                             aria-valuemax="100"></div> -->
                                                     </div>
@@ -118,7 +118,7 @@
                                                 <div class="aivrate_prgbox_prgdiv">
                                                     <div class="progress">
                                                         <!-- ratingObject.ratingFour -->
-                                                        <progressbar [value]="ratingObject.ratingFour" type="danger" ></progressbar>   
+                                                        <progressbar [value]="ratingObject.ratingFour" type="danger" ></progressbar>
                                                     </div>
                                                 </div>
                                                 <div class="aivrate_prgbox_prgval">
@@ -194,7 +194,7 @@
                                     class="fa fa-trash"></i></button>
                         </div>
                         <div class="aiv_widgetsdock_item_desc">
- 
+
                             <p class="wid_nm">{{widget.title}}</p>
                             <p class="wid_owner">Seller name:- {{widget.seller_name}} </p>
                             <p class="wid_price" *ngIf="widget.purchase_option!= 'free'">Price:- <i
@@ -233,7 +233,7 @@
                                 <div class="aiv_phead">Features</div>
                                 <ul class="list-unstyled aiv_wid_item_list_desclist">
                                     <!--  -->
-                                    <li *ngFor="let n in widget.features">{{n}}</li>
+                                    <li *ngFor="let n of widget.features">{{n}}</li>
                                     <!-- <li>Pellentesque vel dolor euismod, finibus ante id, rhoncus velit hasellus nec
                                         dolor vulputate,
                                         finibus odio non, egestas augue.</li>
@@ -342,7 +342,7 @@
                                 </div>
                                 <div class="wdt_cmntfoot_btn_div">
                                     <!-- ng-click="makeComment(comment);" -->
-                                    <button type="submit" 
+                                    <button type="submit"
                                         class="btn_cmntft btn_sbtn btn btn-primary" [disabled]="!comment.valid" >Submit</button>
                                     <!-- ng-click="clear()" -->
                                     <button type="button" class="btn_cmntft btn_cncl btn btn-primary">Cancel</button>

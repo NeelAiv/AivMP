@@ -27,9 +27,10 @@ app.use('/uploads', express.static('./uploads'));
 app.use(express.static('MP/uploads/files/'));
 app.use(express.static('MP/uploads/profiles/'));
 app.use(express.static('MP/uploads/images/'));
-app.use(express.static('MarketPlace/'));
+// app.use(express.static('MarketPlace/'));
 // app.use('*/AivMarketplace',express.static(path.join(__dirname, 'AivMarketplace')));
-app.use(express.static(path.join(__dirname, 'AivMarketplace')));
+app.use(express.static(path.join(__dirname, 'marketplace')));
+app.use(express.static('marketplace/'));
 app.use('/logs', express.static(__dirname + '/log'))
 let passUtil = new passwordUtil();
 app.use(function (req, res, next) {
@@ -39,6 +40,13 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization");
     next();
 });
+const http = require('http');
+const https = require('https');
+// var options = {
+//     key: fs.readFileSync('/etc/letsencrypt/live/marketplace.opnbi.com/privkey.pem'),
+//     cert: fs.readFileSync('/etc/letsencrypt/live/marketplace.opnbi.com/cert.pem'),
+//     ca: fs.readFileSync('/etc/letsencrypt/live/marketplace.opnbi.com/fullchain.pem')
+// };
 /* var storeImage =   multer.diskStorage({
     destination: function (req, file, callback) {
       callback(null, './Widgets/images/');
@@ -70,7 +78,7 @@ var storeWidget = multer.diskStorage({
         var temp = '';
         console.log('WidgetDirectoryFiles --> ', WidgetDirectoryFiles);
         console.log('WidgetDirectoryImages --> ', WidgetDirectoryImages);
-        callback(null, (file.originalname.indexOf('.widget') > -1 || file.originalname.indexOf('.exe')) ? WidgetDirectoryFiles : WidgetDirectoryImages);
+        callback(null, WidgetDirectoryFiles);
     },
     filename: function (req, file, callback) {
         var fName = Date.now() + '_' + file.originalname;
@@ -78,7 +86,6 @@ var storeWidget = multer.diskStorage({
             wObject.file_path = fName;
         } else {
             wObject.image = fName;
-            //   wObject.images += fName+ ',';
         }
         console.log('widget ----> ', wObject, fName)
         callback(null, fName);
@@ -153,24 +160,35 @@ app.get('/', (req, res) => {
     res.send({ message: 'success' });
 });
 
-var cpUpload = upload.fields([{ name: 'coverImage', maxCount: 10 }, { name: 'widgetFile', maxCount: 8 }])
+var cpUpload = upload.fields([{ name: 'widgetFile', maxCount: 8 }])
 
 
 
 app.post('/uploadFile', cpUpload, (req, res) => {
     var body = req.body;
     console.log('Widget: ', body);
+    var is_public = 0;
     var mysqlTimestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-    var q = "INSERT INTO `ai_mp_components` "
-        + "(`title`,`category`,`rate`,`description`,`image`,`purchase_option`,`size`,`downloaded`,`refresh`,`no_of_comments`,`download_link`,`details`,`features`,`seller_name`,`file_path`,`price`,`video_url`,`created_date`,`last_update_date`,`user_id`,`sub_category`)"
-        + "VALUES ('" + body.title + "', '" + body.category + "', '" + body.rate + "', '" + body.description + "', '" + wObject.images + "', '" + body.purchase_option + "','" + body.size + "', 0,0,0,'" + body.download_link + "','" + body.details + "','" + body.features + "','" + body.seller_name + "','" + wObject.file_path + "'," + body.price + ",'" + body.video_url + "','" + mysqlTimestamp + "','" + mysqlTimestamp + "','" + body.user_id + "','" + body.sub_category + "' )";
-    mysqlConnection.query(q, (err, result) => {
-        if (!err) {
-            res.send({ message: 'Component uploaded successfully', success: true, widgetId: result.insertId });
-        } else {
-            res.send({ message: err, success: false });
+
+    mysqlConnection.query('SELECT * FROM ai_mp_users where id = ? ', [body.user_id], (err, data, datafields) => {
+        if (!err){
+            var userObj = data[0];
+            if(userObj.role == 'ADMIN' || userObj.role == 'INTERNAL'){
+                is_public = 1;
+            }
+            var q = "INSERT INTO `ai_mp_components` "
+            + "(`title`,`category`,`rate`,`description`,`image`,`purchase_option`,`size`,`downloaded`,`refresh`,`no_of_comments`,`download_link`,`details`,`features`,`seller_name`,`file_path`,`price`,`video_url`,`created_date`,`last_update_date`,`user_id`,`sub_category`,`is_public`)"
+            + "VALUES ('" + body.title + "', '" + body.category + "', '" + body.rate + "', '" + body.description + "', '" + wObject.images + "', '" + body.purchase_option + "','" + body.size + "', 0,0,0,'" + body.download_link + "','" + body.details + "','" + body.features + "','" + body.seller_name + "','" + wObject.file_path + "'," + body.price + ",'" + body.video_url + "','" + mysqlTimestamp + "','" + mysqlTimestamp + "','" + body.user_id + "','" + body.sub_category + "',"+ is_public +")";
+        mysqlConnection.query(q, (err, result) => {
+            if (!err) {
+                res.send({ message: 'Component uploaded successfully', success: true, widgetId: result.insertId });
+            } else {
+                res.send({ message: 'Component upload failed', success: false });
+            }
+        });
         }
     });
+   
 
 });
 
@@ -191,7 +209,7 @@ app.post('/uploadFile/:id', cpUpload, (req, res) => {
                 console.log('fields : ', fields);
                 res.send({ message: 'success' });
             } else {
-                res.send({ message: err });
+                res.send({ message: "Update failed" });
             }
         });
     }
@@ -219,7 +237,7 @@ app.get('/forgetpassword/:email', (req, res) => {
 
                 transporter.sendMail(mailOptions, function (error, info) {
                     if (error) {
-                        res.send(error);
+                        res.send({ 'success': false, 'message': "Email Send failed", 'data': {} });
                         console.log(error)
                     } else {
                         res.send({ response: "Success" });
@@ -230,8 +248,9 @@ app.get('/forgetpassword/:email', (req, res) => {
             else {
                 res.send({ 'success': false, 'message': "Email Not found.", 'data': {} });
             }
-        } else
-            res.send(err);
+        } else{
+        res.send({ 'success': false, 'message': "No data found!", 'data': {} });
+        }
         console.log(err)
     })
 });
@@ -270,7 +289,7 @@ app.get('/getAll', (req, res) => {
         if (!err)
             res.send(rows);
         else
-            res.send(err);
+            res.send({ 'success': false, 'message': "No Users found!", 'data': {} });
     })
 });
 
@@ -303,7 +322,7 @@ app.post('/createUser', (req, res) => {
                     if (!err)
                         res.send({ 'success': true, 'message': "User registered." });
                     else
-                        res.send({ 'success': false, message: err });
+                        res.send({ 'success': false, message: "User registration failed!" });
                 })
 
             } else {
@@ -311,7 +330,7 @@ app.post('/createUser', (req, res) => {
             }
         }
         else {
-            res.send({ 'success': false, 'message': err });
+            res.send({ 'success': false, 'message': "Something went wronf while registering user!" });
         }
     });
 });
@@ -495,6 +514,9 @@ app.post('/updateUser', profileUpload, (req, res) => {
                     res.send({ 'success': false, 'message': "Old Password is wrong." });
                 }
             }
+            else{
+                res.send({ 'success': false, 'message': "Something went wrong while update user" });
+            }
         })
     }
 
@@ -514,7 +536,7 @@ app.put('/deleteUser/:id', (req, res) => {
         if (!err)
             res.send(rows);
         else
-            res.send(err);
+            res.send({ 'success': false, 'message': "User remove failed!" });
     })
 });
 
@@ -524,7 +546,17 @@ app.get('/widgets', (req, res) => {
         if (!err) {
             res.send(rows);
         } else {
-            res.send(err);
+            res.send({ 'success': false, 'message': "Something went wrong while get all public widgets!" });
+        }
+    })
+});
+
+app.get('/unapprovewidgets', (req, res) => {
+    mysqlConnection.query('SELECT * FROM ai_mp_components where is_public=0', (err, rows, fields) => {
+        if (!err) {
+            res.send(rows);
+        } else {
+            res.send({ 'success': false, 'message': "Something went wrong while get unapproved widgets!" });
         }
     })
 });
@@ -536,7 +568,7 @@ app.get('/widget/:id', (req, res) => {
         if (!err)
             res.send({ 'success': true, 'data': rows, 'message': "component updated successfully." });
         else
-            res.send({ 'success': false, 'data': err, 'message': "comport update failed" });
+            res.send({ 'success': false, 'data': [], 'message': "component update failed" });
     })
 });
 
@@ -546,7 +578,7 @@ app.get('/widget/user/:id', (req, res) => {
         if (!err)
             res.send(rows);
         else
-            res.send(err);
+        res.send({ 'success': false, 'data': [], 'message': "Something went wrong while get widget by user!" });
     })
 });
 
@@ -554,18 +586,28 @@ app.get('/widget/user/:id', (req, res) => {
 app.post('/uploadWidget', (req, res) => {
     console.log(req.body);
     var w = req.body;
-
-    var sql = "INSERT INTO ai_mp_components (`title`,`type`,`rate`,`description`,`image`,`purchase_option`,`size`, "
-        + " `downloaded`,`refresh`,`no_of_comments`,`download_link`,`user_id` ) "
-        + " VALUES ('" + w.title + "','" + w.type + "','" + w.rate + "','" + w.description + "','" + w.images + "','" + w.purchase_option + "','" + w.size + "','"
-        + w.downloaded + "','" + w.refresh + "','" + w.no_of_comments + "','" + w.download_link + "','" + w.user_id + "')";
-
-    mysqlConnection.query(sql, (err, rows, fields) => {
-        if (!err)
-            res.send(rows);
-        else
-            res.send(err);
-    });
+    var is_public = false;
+        mysqlConnection.query('SELECT * FROM ai_mp_users where id = ? ', [w.user_id], (err, data, datafields) => {
+            if (!err)
+                {
+                    if(data[0].role == 'ADMIN' || data[0].role == "INTERNAL"){
+                        is_public = true;  
+                    }
+                    var sql = "INSERT INTO ai_mp_components (`title`,`type`,`rate`,`description`,`image`,`purchase_option`,`size`, "
+                    + " `downloaded`,`refresh`,`no_of_comments`,`download_link`,`user_id`,'is_public' ) "
+                    + " VALUES ('" + w.title + "','" + w.type + "','" + w.rate + "','" + w.description + "','" + w.images + "','" + w.purchase_option + "','" + w.size + "','"
+                    + w.downloaded + "','" + w.refresh + "','" + w.no_of_comments + "','" + w.download_link + "','" + w.user_id + "','" + is_public + "')";
+                    mysqlConnection.query(sql, (err, rows, fields) => {
+                        if (!err)
+                            res.send(rows);
+                        else
+                            res.send(err);
+                    }); 
+                }
+            else
+               { res.send(err);}
+        })
+   
 });
 
 app.get('/widgetDetails/:id', (req, res) => {
@@ -577,7 +619,18 @@ app.get('/widgetDetails/:id', (req, res) => {
     })
 });
 
-
+app.put('/approveWidget/:id', (req, res) => {
+    let query = "update ai_mp_components set is_public = true where id ="+req.params.id;
+    mysqlConnection.query(query, [req.params.id], (err, rows, fields) => {
+        if (!err) {
+            res.send({ 'success': true, 'message': "Widget has been approved" });
+        }
+        else {
+            console.log(err);
+            res.send({ 'success': false, 'message': "error while approve widget" });
+        }
+    })
+})
 app.put('/update/:id', (req, res) => {
     console.log('req body :', req.body);
     const body = req.body;
@@ -994,9 +1047,9 @@ app.get("/downloadWidget/:fileName", (req, res) => {
             res.setHeader('Content-disposition', 'attachment; filename='+req.params.fileName);
             //filename is the name which client will see. Don't put full path here.
             
-            res.setHeader('Content-type', 'application/x-msdownload');      //for exe file
+            // res.setHeader('Content-type', 'application/x-msdownload');      //for exe file
             
-            var file1 = fs.createReadStream(file);
+            var file1 = fs.createReadStream(path.join(WidgetDirectoryFiles, req.params.fileName));
             //replace filepath with path of file to send
             file1.pipe(res);
             //send file
@@ -1037,29 +1090,11 @@ app.post('/uploadWidgetImages/:widgetId', uploadWidgetImages.array('uploadedImag
     res.end();
 });
 
-    // mysqlConnection.query(selectQuery,body.email,(err, rows, fields) => {
+app.get('*', (req, res) => {
 
-    //     if (!err){
-    //         console.log(rows[1]);
-    //         if(rows ==[]){
-    //             mysqlConnection.query(query1,(err, rows, fields) => {
-    //                 if(!err){
-    //                     res.send({'success' : true , message: "user subscribed"} );
-    //                 }
-    //                 else{
-    //                     res.send({'success' : false , message: "user subscription failed"} );            
-    //                 }
-    //             })         
-    //         }
-    //         else{
-    //             res.send({'success' : true , message: "user already subscribed"} );
-    //         }
+    res.sendFile(path.resolve('marketplace/index.html'));
 
-    //         // res.send();
-    //     }   
-    //     else{
-    //         res.send({'success' : false , message: "user subscription failed"} );
-    //     }
-    // })
+});
 
-
+http.createServer(app).listen(80)
+// https.createServer(options, app).listen(443);

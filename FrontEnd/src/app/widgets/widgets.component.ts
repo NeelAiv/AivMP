@@ -32,7 +32,9 @@ export class WidgetsComponent implements OnInit {
     ) {}
 
   ngOnInit(): void {
-    this.widgetList$ = this.sharVarService.$widgetList.pipe(map(data => data));
+    this.widgetList$ = this.sharVarService.$widgetList.pipe(map(data => {console.log("Fetched widget data:", data);
+      return data;
+    }));
     // this.widgetService.GetAllWidget().subscribe(data => {
     //   this.AllWidgets=data;
     //   console.log(this.AllWidgets);
